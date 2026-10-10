@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 
@@ -69,3 +70,45 @@ class GraphNetworkAttention(nn.Module):
         pred = pred.view(-1, 12, 2)  # Reshape to (batch_size, 12, 2)
 
         return pred
+
+
+class GraphNetworkAttentionMultimodal(nn.Module):
+    """Predict multiple 12-step xy trajectories for each target agent."""
+
+    def __init__(self, num_modes=6):
+        super().__init__()
+        self.num_modes = num_modes
+
+        self.encoder = nn.Sequential(
+            nn.Linear(15, 64),
+            nn.ReLU()
+        )
+
+        self.gat1 = GATv2Conv(
+            in_channels=64,
+            out_channels=64,
+            heads=1,
+            concat=False,
+            edge_dim=3
+        )
+        self.gat2 = GATv2Conv(
+            in_channels=64,
+            out_channels=64,
+            heads=1,
+            concat=False,
+            edge_dim=3
+        )
+
+        self.decoder = nn.Sequential(
+            nn.Linear(64, 128),
+            nn.ReLU(),
+            nn.Linear(128, num_modes * 12 * 2)
+        )
+
+    def forward(self, batch):
+        h = self.encoder(batch.x)
+        h = torch.relu(self.gat1(h, batch.edge_index, batch.edge_attr))
+        h = torch.relu(self.gat2(h, batch.edge_index, batch.edge_attr))
+        h_target = h[batch.target_mask]
+        pred = self.decoder(h_target)
+        return pred.view(-1, self.num_modes, 12, 2)

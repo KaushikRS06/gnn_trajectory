@@ -23,3 +23,6 @@ data/v1.0-test_meta.tgz
 # Generated radius-sweep datasets and model checkpoints
 data/processed/radius_sweep/**/*.pkl
 data/processed/radius_sweep/**/*.pth
+
+# Multimodal multi-seed checkpoints
+data/processed/multimodal_seed_check/*.pth
