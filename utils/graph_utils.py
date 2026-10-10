@@ -1,3 +1,10 @@
+"""
+Utilities for converting processed nuScenes samples into graph inputs.
+
+Builds node features, fully connected directed graph edges, edge attributes,
+target masks, and helper functions for graph-based interaction analysis.
+"""
+
 import numpy as np
 import torch
 from torch_geometric.data import Data

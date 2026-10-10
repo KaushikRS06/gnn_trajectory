@@ -2,9 +2,8 @@
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
-tree.png
 .vscode/
-*.pyc
+checkpoints/
 
 # Not data 
 data/maps/ 

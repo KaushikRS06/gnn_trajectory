@@ -1,3 +1,10 @@
+"""
+Utilities for analysing how surrounding road users affect trajectory prediction.
+
+Includes scene-density evaluation, neighbor-removal ablations, and
+breakdowns of interaction benefit by neighbor count and distance.
+"""
+
 import numpy as np
 import torch
 
