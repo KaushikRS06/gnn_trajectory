@@ -5,7 +5,10 @@ Provides ADE-based training, checkpoint selection, deterministic ADE/FDE
 evaluation, and multimodal minADE/minFDE evaluation.
 """
 
+import importlib.metadata
+import json
 import random
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -19,6 +22,30 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+
+def _json_default(obj):
+    """Let json.dump handle numpy scalars in manifest fields."""
+    if isinstance(obj, np.generic):
+        return obj.item()
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+
+
+def save_run_manifest(checkpoint_path, **info) -> None:
+    """Write a JSON manifest next to checkpoint_path recording how it was produced.
+
+    Library versions are filled in automatically; pass everything else
+    that matters for reproducing or auditing this checkpoint (e.g. seed,
+    radius, num_epochs, val_ade/val_fde or val_minade6/val_minfde6).
+    """
+    manifest = {
+        "torch_version": torch.__version__,
+        "torch_geometric_version": importlib.metadata.version("torch_geometric"),
+        **info,
+    }
+    manifest_path = Path(checkpoint_path).with_suffix(".json")
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2, default=_json_default)
 
 
 # For loss function
