@@ -14,7 +14,6 @@ Usage:
 import argparse
 import json
 import pickle
-import random
 import sys
 from pathlib import Path
 
@@ -29,7 +28,7 @@ from torch_geometric.loader import DataLoader
 
 from utils.graph_utils import sample_to_graph
 from utils.models import GraphNetworkAttention
-from utils.training_utils import ade_loss, train_and_validate, evaluate_model
+from utils.training_utils import ade_loss, train_and_validate, evaluate_model, set_seed
 from utils.analysis_utils import (
     evaluate_by_density,
     neighbor_effect_by_distance,
@@ -45,12 +44,6 @@ SPLITS = {
     "val": "train_val",
     "test": "val",
 }
-
-
-def set_seed(seed):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
 
 
 def neighbor_count_stats(dataset):
