@@ -27,6 +27,7 @@ from utils.models import (
     GraphNetworkAttentionMultimodal,
 )
 from utils.training_utils import (
+    save_run_manifest,
     set_seed,
     ade_loss,
     best_of_k_ade_loss,
@@ -160,7 +161,7 @@ def main():
         f" | device={device}\n"
     )
 
-    train_and_validate(
+    train_losses, val_losses = train_and_validate(
         model,
         train_loader,
         val_loader,
@@ -189,6 +190,23 @@ def main():
 
     # Evaluate on test set
     test_metrics = evaluate(model,test_loader, device)
+
+    # To 
+    save_run_manifest(
+        checkpoint_path,
+        model=args.model,
+        seed=args.seed,
+        radius=35,
+        num_modes=6 if args.model == "multimodal" else 1,
+        num_epochs=args.epochs,
+        best_epoch=int(np.argmin(val_losses)) + 1,
+        best_val_loss=min(val_losses),
+        batch_size=args.batch_size,
+        lr=args.lr,
+        device=str(device),
+        validation_metrics=dict(zip(metric_names, val_metrics)),
+        test_metrics=dict(zip(metric_names, test_metrics)),
+    )
 
 
     # -------------------

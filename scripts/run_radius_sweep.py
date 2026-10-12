@@ -28,7 +28,13 @@ from torch_geometric.loader import DataLoader
 
 from utils.graph_utils import sample_to_graph
 from utils.models import GraphNetworkAttention
-from utils.training_utils import ade_loss, train_and_validate, evaluate_model, set_seed
+from utils.training_utils import (
+    ade_loss,
+    train_and_validate,
+    evaluate_model,
+    set_seed,
+    save_run_manifest,
+)
 from utils.analysis_utils import (
     evaluate_by_density,
     neighbor_effect_by_distance,
@@ -163,6 +169,22 @@ def run_one_radius(get_nusc, radius, args):
 
     val_ade, val_fde = evaluate_model(model, val_loader, device)
     test_ade, test_fde = evaluate_model(model, test_loader, device)
+
+    save_run_manifest(
+        checkpoint_path,
+        model="attention",
+        seed=args.seed,
+        radius=radius,
+        num_epochs=args.epochs,
+        best_epoch=int(np.argmin(val_losses)) + 1,
+        best_val_loss=min(val_losses),
+        batch_size=args.batch_size,
+        lr=args.lr,
+        val_ade=val_ade,
+        val_fde=val_fde,
+        test_ade=test_ade,
+        test_fde=test_fde,
+    )
 
     density_breakdown = evaluate_by_density(model, datasets["val"], val_graphs, device)
 
