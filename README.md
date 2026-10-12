@@ -32,6 +32,10 @@ model and seed in the same directory replaces that checkpoint; use another
 terminal. Random generators are seeded, but CUDA graph operations may still vary
 across runs or hardware.
 
+A sibling JSON manifest records the checkpoint's model, seed, radius, training
+settings, best epoch, validation/test metrics, and PyTorch/PyG versions. It is
+written after the best checkpoint is reloaded and evaluated.
+
 Attention reports ADE/FDE. The six-mode model trains with best-of-K ADE and reports
 minADE6/minFDE6, minimized independently across modes. Historical notebook FDE
 results instead use the best-ADE mode and are not the same metric.

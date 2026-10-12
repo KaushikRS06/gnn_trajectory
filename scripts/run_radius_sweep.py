@@ -172,9 +172,12 @@ def run_one_radius(get_nusc, radius, args):
 
     save_run_manifest(
         checkpoint_path,
+        model="attention",
         seed=args.seed,
         radius=radius,
         num_epochs=args.epochs,
+        best_epoch=int(np.argmin(val_losses)) + 1,
+        best_val_loss=min(val_losses),
         batch_size=args.batch_size,
         lr=args.lr,
         val_ade=val_ade,

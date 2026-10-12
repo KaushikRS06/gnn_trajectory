@@ -38,14 +38,19 @@ def save_run_manifest(checkpoint_path, **info) -> None:
     that matters for reproducing or auditing this checkpoint (e.g. seed,
     radius, num_epochs, val_ade/val_fde or val_minade6/val_minfde6).
     """
+    checkpoint_path = Path(checkpoint_path)
+    if not checkpoint_path.is_file():
+        raise FileNotFoundError(f"Checkpoint does not exist: {checkpoint_path}")
     manifest = {
+        "checkpoint": str(checkpoint_path),
         "torch_version": torch.__version__,
         "torch_geometric_version": importlib.metadata.version("torch_geometric"),
         **info,
     }
-    manifest_path = Path(checkpoint_path).with_suffix(".json")
-    with open(manifest_path, "w") as f:
-        json.dump(manifest, f, indent=2, default=_json_default)
+    # Serialize before opening so invalid values cannot truncate an old manifest.
+    payload = json.dumps(manifest, indent=2, default=_json_default, allow_nan=False)
+    manifest_path = checkpoint_path.with_suffix(".json")
+    manifest_path.write_text(payload + "\n")
 
 
 # For loss function
