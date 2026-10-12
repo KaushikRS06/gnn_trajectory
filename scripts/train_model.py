@@ -7,7 +7,6 @@ Example usage:
 
 import argparse
 import pickle
-import random
 import sys
 from pathlib import Path
 
@@ -28,6 +27,7 @@ from utils.models import (
     GraphNetworkAttentionMultimodal,
 )
 from utils.training_utils import (
+    set_seed,
     ade_loss,
     best_of_k_ade_loss,
     evaluate_model,
@@ -36,18 +36,6 @@ from utils.training_utils import (
 )
 
 # ========================================================
-
-def set_seed(seed):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-    # Seeded CUDA scatter operations may still vary across runs/devices.
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
-
 
 def load_graphs(split):
     path = (
@@ -107,6 +95,9 @@ def main():
     # -------------------
 
     set_seed(args.seed)
+    # Seeded CUDA scatter operations may still vary across runs/devices.
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
 
     generator = torch.Generator()
     generator.manual_seed(args.seed)
